@@ -1,11 +1,11 @@
 package com.davidpinchen;
 
-        import static java.lang.Math.random;
+import static java.lang.Math.random;
 
 class DNA implements Comparable<DNA> {
 
     private char[] genes;
-    public int fitness = 0;
+    int fitness = 0;
 
     DNA(int targetLength){
         this.genes = new char[targetLength];
@@ -14,7 +14,7 @@ class DNA implements Comparable<DNA> {
         }
     }
 
-    public char[] getGenes() {
+    private char[] getGenes() {
         return genes;
     }
 
@@ -27,7 +27,7 @@ class DNA implements Comparable<DNA> {
         }
     }
 
-    public int getFitness() {
+    private int getFitness() {
         return fitness;
     }
 
@@ -47,7 +47,7 @@ class DNA implements Comparable<DNA> {
         return o.getFitness() - this.getFitness();
     }
 
-    public DNA crossover(DNA parent2){
+    DNA crossover(DNA parent2){
         DNA child = new DNA(this.genes.length);
 
         int midpoint = (int) (random() * genes.length);
@@ -63,9 +63,9 @@ class DNA implements Comparable<DNA> {
         return child;
     }
 
-    public void mutate(int mutationRate){
+    void mutate(float mutationRate){
         for (int i = 0; i < genes.length; i++){
-            if (random() < (float) mutationRate / 100){
+            if (random() <  mutationRate / 100){
                 genes[i] = (char) ((random() * 128) + 32);
             }
         }
