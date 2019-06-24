@@ -1,5 +1,6 @@
 package com.davidpinchen;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import static java.lang.Math.random;
 
@@ -67,9 +68,18 @@ class DNA implements Comparable<DNA> {
         String currentDNA = builder.toString();
 
         double fitnessNormalise = ((this.fitness / this.targetFitness) * 100);
-        String fitnessPercentage = new DecimalFormat("#.##").format((fitnessNormalise));
+        BigDecimal fitnessPercentage = truncateDecimal(fitnessNormalise,2);
 
-        return "" + currentDNA + "\t\t\t Fitness: " + fitnessPercentage + "%";
+        return "Fitness: " + fitnessPercentage + "% \t - \t " + currentDNA;
+    }
+
+    private static BigDecimal truncateDecimal(double x, int numberofDecimals)
+    {
+        if ( x > 0) {
+            return new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_FLOOR);
+        } else {
+            return new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_CEILING);
+        }
     }
 
     /**

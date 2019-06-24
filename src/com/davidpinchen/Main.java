@@ -5,13 +5,12 @@ package com.davidpinchen;
 
 public class Main {
 
-
     // Set these two variables to choose the size of the population
     // and also the phrase that you would like to try and evolve
     // population size must be divisible by 4 - protection is in place
-    private static int populationSize = 5000;
-    private static String targetString = "To be or not to be, that is the question!";
-    private static int fitnessExponent = 3;
+    private static int populationSize = 4000;
+    private static String targetString = "Darth Vader was my father";
+    private static int fitnessExponent = 2;
 
 
     private static DNA[] population = new DNA[populationSize - (populationSize % 4)];
@@ -43,7 +42,7 @@ public class Main {
             // Sort the population by fitness
             sortPopulation();
             // Output the best scoring member from each generation
-            System.out.println(population[0].toString());
+            System.out.println(population[0].toString()); // Comment this line out to speed up the program
             // Check to see if the top scoring member has the correct value (max fitness)
             if (population[0].fitness == Math.pow(targetLength,fitnessExponent)) {
                 System.out.println("Completed in " + generation + " generations");
