@@ -1,7 +1,6 @@
 package com.davidpinchen;
 
 import java.text.DecimalFormat;
-
 import static java.lang.Math.random;
 
 class DNA implements Comparable<DNA> {
@@ -47,7 +46,6 @@ class DNA implements Comparable<DNA> {
             }
         }
         this.fitness = Math.pow(this.fitness, fitnessExponent);
-
     }
 
     /**
@@ -105,7 +103,6 @@ class DNA implements Comparable<DNA> {
                 child.genes[i] = parent.genes[i];
             }
         }
-
         return child;
     }
 
@@ -120,9 +117,6 @@ class DNA implements Comparable<DNA> {
                 genes[i] = (char) ((random() * 128) + 32);
             }
         }
-
-
     }
-
 
 }
