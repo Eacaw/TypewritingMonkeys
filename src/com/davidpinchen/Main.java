@@ -9,7 +9,7 @@ public class Main {
     // and also the phrase that you would like to try and evolve
     // population size must be divisible by 4 - protection is in place
     private static int populationSize = 4000;
-    private static String targetString = "Darth Vader was my father";
+    private static String targetString = "To be or not to be, that is the question!";
     private static int fitnessExponent = 2;
 
 

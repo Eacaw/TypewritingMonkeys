@@ -72,6 +72,7 @@ class DNA implements Comparable<DNA> {
         return "Fitness: " + fitnessPercentage + "% \t - \t " + currentDNA;
     }
 
+    // Method credit: https://stackoverflow.com/users/2182351/mani
     private static BigDecimal truncateDecimal(double x, int numberofDecimals)
     {
         if ( x > 0) {
