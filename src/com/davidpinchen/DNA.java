@@ -1,6 +1,9 @@
 package com.davidpinchen;
 
+import java.text.DecimalFormat;
+
 import static java.lang.Math.random;
+import static java.lang.Math.round;
 
 class DNA implements Comparable<DNA> {
 
@@ -9,17 +12,20 @@ class DNA implements Comparable<DNA> {
     // Fitness is the comparison of the genes to
     // the target phrase
     private char[] genes;
-    int fitness = 0;
+    double fitness = 0;
+    private double targetFitness;
+    private int fitnessExponent;
 
     /**
      * Constructor to generate a random sequence of characters
-     * @param targetLength - length of target phrase
      */
-    DNA(int targetLength){
-        this.genes = new char[targetLength];
+    DNA(char[] targetPhrase, int fitnessExponent){
+        this.genes = new char[targetPhrase.length];
         for (int i = 0; i < genes.length; i++){
             genes[i] = (char) ((random() * 128) + 32);
         }
+        this.fitnessExponent = fitnessExponent;
+        this.targetFitness = Math.pow(targetPhrase.length, fitnessExponent);
     }
 
     /**
@@ -34,19 +40,21 @@ class DNA implements Comparable<DNA> {
      * to provide a fitness score
      * @param targetPhrase -
      */
-    void evaluateFitness(char[] targetPhrase){
+    void evaluateFitness(char[] targetPhrase, int fitnessExponent){
         this.fitness = 0;
         for (int i = 0; i < this.getGenes().length; i++){
             if (this.getGenes()[i] == targetPhrase[i]){
                 this.fitness++;
             }
         }
+        this.fitness = Math.pow(this.fitness, fitnessExponent);
+
     }
 
     /**
      * @return - integer fitness score
      */
-    private int getFitness() {
+    private double getFitness() {
         return fitness;
     }
 
@@ -61,7 +69,10 @@ class DNA implements Comparable<DNA> {
         }
         String currentDNA = builder.toString();
 
-        return "" + currentDNA + "\t\t Fitness: " + this.fitness;
+        double fitnessNormalise = ((this.fitness / this.targetFitness) * 100);
+        String fitnessPercentage = new DecimalFormat("#.##").format((fitnessNormalise));
+
+        return "" + currentDNA + "\t\t\t Fitness: " + fitnessPercentage + "%";
     }
 
     /**
@@ -71,7 +82,7 @@ class DNA implements Comparable<DNA> {
      */
     @Override
     public int compareTo(DNA o) {
-        return o.getFitness() - this.getFitness();
+        return (int) o.getFitness() - (int) this.getFitness();
     }
 
     /**
@@ -81,8 +92,9 @@ class DNA implements Comparable<DNA> {
      * @param parent - secondParent
      * @return - Child DNA from crossover breeding
      */
+    //TODO Find a new crossover function to improve the GA
     DNA crossover(DNA parent){
-        DNA child = new DNA(this.genes.length);
+        DNA child = new DNA(this.genes, this.fitnessExponent);
 
         // Random midpoint selected to ensure variation
         int midpoint = (int) (random() * genes.length);
