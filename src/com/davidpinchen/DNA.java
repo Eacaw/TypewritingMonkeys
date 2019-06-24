@@ -3,7 +3,6 @@ package com.davidpinchen;
 import java.text.DecimalFormat;
 
 import static java.lang.Math.random;
-import static java.lang.Math.round;
 
 class DNA implements Comparable<DNA> {
 
