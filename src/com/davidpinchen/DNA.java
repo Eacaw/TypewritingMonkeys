@@ -1,7 +1,6 @@
 package com.davidpinchen;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import static java.lang.Math.random;
 
 class DNA implements Comparable<DNA> {
