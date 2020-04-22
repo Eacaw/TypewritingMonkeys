@@ -1,116 +1,158 @@
 package com.davidpinchen;
 
-        import java.util.ArrayList;
-        import java.util.Arrays;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+
 
 public class Main {
 
     // Set these two variables to choose the size of the population
     // and also the phrase that you would like to try and evolve
     // population size must be divisible by 4 - protection is in place
-    private static int populationSize = 4000;
-    private static String targetString = "To be or not to be, that is the question!";
+    private static int populationSize = 512;
+    private static String targetString = "To be or not to be, that is the question";
     private static int fitnessExponent = 2;
+    private static float mutationRate = 5f;
+    private static int maxAverageIterations = 10;
+    private static int elitism = 20;
 
 
-    private static DNA[] population = new DNA[populationSize - (populationSize % 4)];
     private static char[] targetPhrase = targetString.toCharArray();
     private static double targetLength = (double) targetString.length();
 
-    private static ArrayList<DNA> matingPool = new ArrayList<>();
 
-    private static int generation = 0;
+    // OutputFileDetails
+
+    private static String path = "output.tsv";
 
     public static void main(String[] args) {
+
+        WriteFile outputData = new WriteFile(path, true);
 
         System.out.println("------------------");
         System.out.println("Target phrase is:");
         System.out.println(targetString);
         System.out.println("------------------");
 
-        // boolean to exit the genetic algorithm loop
-        boolean complete = false;
 
-        // Generate the initial population of
-        // completely random strings of characters
-        generateInitialPopulation();
+        double totalTime = 0;
+        int totalGenerations = 0;
+        double averageTime = 0;
+        int averageGenerations = 0;
 
-        // GA Loop
-        while(!complete) {
-            // Apply a fitness score to each member of the population
-            evaluateFitness(targetPhrase);
-            // Sort the population by fitness
-            sortPopulation();
-            // Output the best scoring member from each generation
-            System.out.println(population[0].toString()); // Comment this line out to speed up the program
-            // Check to see if the top scoring member has the correct value (max fitness)
-            if (population[0].fitness == Math.pow(targetLength,fitnessExponent)) {
-                System.out.println("Completed in " + generation + " generations");
-                // Exit loop
-                complete = true;
+        for(int elitismMultiplier = 1; elitismMultiplier < 10; elitismMultiplier++) {
+            elitism = 5 * elitismMultiplier;
+            System.out.println("---- Elitism Value: " + elitism + " ----");
+            StringBuilder outputLine = new StringBuilder("---- Elitism Value: " + elitism + " ----");
+            try {
+                outputData.writeToFile(outputLine.toString());
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
-            // Select the parents for the next generation
-            fillMatingPool();
-            // Breed the generation to create the next generation
-            breedNextGeneration();
-            // Increment the generation counter
-            generation++;
-        }
+
+            // Test conditions for a range of population sizes
+            for (int i = 7; i < 21; i++) {
+                populationSize = (int) Math.pow(2, i);
+                DNA[] population = new DNA[populationSize];
+
+
+                // Run each population size test 10 times and take averages
+                for (int averageTestIteration = 0; averageTestIteration < maxAverageIterations; averageTestIteration++) {
+
+                    // -----------------------------BEGIN ------------------------//
+                    // -----------------------------------------------------------//
+                    // boolean to exit the genetic algorithm loop
+                    boolean complete = false;
+                    // Generation Counter
+                    int count = 0;
+                    // Start Generation Timer
+                    long totaltimestart = System.currentTimeMillis();
+
+
+                    population = generateInitialPopulation();
+
+                    for (int j = 0; j < populationSize; j++) {
+                        GALoop.evaluateFitness(population[j], fitnessExponent, targetPhrase);
+                    }
+
+                    population = GALoop.sortPopulation(population);
+
+                    //printPopulation();
+
+                    while (!complete) {
+
+                        population = GALoop.performSingleGALoop(population, fitnessExponent, mutationRate, targetPhrase, elitism);
+
+
+                        //printPopulation();
+                        //System.out.println("Gen " + count + ": " + population[0].toString());
+                        if (population[0].fitness == Math.pow(targetLength, fitnessExponent)) {
+                            complete = true;
+                        }
+                        count++;
+
+
+                    }
+
+                    totalGenerations += count;
+
+                    //System.out.print(populationSize);
+                    //System.out.print("\t" + count);
+
+                    long totaltimeEnd = System.currentTimeMillis();
+                    int interationTime = (int) (totaltimeEnd - totaltimestart);
+
+                    totalTime += interationTime;
+
+
+                    //System.out.print("\t" + totalTime + "\n");
+
+                    // --------------------------- END ----------------------------------//
+                    //-------------------------------------------------------------------//
+
+                    // Display Progress bar for each averaging test
+                    StringBuilder progress = new StringBuilder("|");
+                    for (int pro = 0; pro < (averageTestIteration + 1); pro++) {
+                        progress.append("=");
+                    }
+                    for (int pro = 0; pro < (10 - averageTestIteration); pro++) {
+                        progress.append(" ");
+                    }
+                    progress.append("|\r");
+                    System.out.print(progress.toString());
+
+                    // End Progress Bar
+
+                } // End Averaging Testing
+                averageTime = (int) totalTime / maxAverageIterations;
+                averageGenerations = (int) totalGenerations / maxAverageIterations;
+                System.out.println(populationSize + "\t" + averageGenerations + "\t" + averageTime);
+                StringBuilder outputLine2 = new StringBuilder(populationSize + "\t" + averageGenerations + "\t" + averageTime);
+                try {
+                    outputData.writeToFile(outputLine2.toString());
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+                totalTime = 0;
+                totalGenerations = 0;
+            } // End Different population size testing
+
+
+
+        } // End Elitism Change Testing
+
     }
 
     /**
      * Generate a fully random list as initial population.
      */
-    private static void generateInitialPopulation(){
-        for (int i = 0; i < population.length; i++){
+    private static DNA[] generateInitialPopulation() {
+        DNA[] population = new DNA[populationSize];
+        for (int i = 0; i < populationSize; i++) {
             population[i] = new DNA(targetPhrase, fitnessExponent);
         }
-    }
-
-    /**
-     * Apply a fitness score to each member of the population
-     * @param targetPhrase - phrase that the GA is trying to reach
-     */
-    private static void evaluateFitness(char[] targetPhrase){
-        for (DNA dna : population) {
-            dna.evaluateFitness(targetPhrase, fitnessExponent);
-        }
-    }
-
-    /**
-     * Sort the population Array based on their fitness score
-     */
-    private static void sortPopulation(){
-        Arrays.sort(population, DNA::compareTo);
-    }
-
-    /**
-     * Fill the mating pool with the top scoring half of the population
-     * from the current generation
-     */
-    private static void fillMatingPool(){
-        matingPool.clear();
-        int oddValueCatch = (population.length / 2) % 2; // Catch uneven numbers to ensure mating pool always has an even population
-        matingPool.addAll(Arrays.asList(population).subList(0, (population.length/2) - oddValueCatch));
-    }
-
-    /**
-     * Breed the next generation of the population
-     */
-    private static void breedNextGeneration(){
-        DNA[] nextGeneration = new DNA[populationSize - (populationSize % 4)];
-        int currentIndex = 0;
-        for (int i = 0; i < (matingPool.size() / 2); i ++){
-            for (int j = 0; j < 4; j++) {
-                DNA child = population[2 * i].crossover(population[(2 * i) + 1]);
-                float mutationRate = 1.5f; // percentage amount for mutations to occur, 1 - 100
-                child.mutate(mutationRate);
-                nextGeneration[currentIndex] = child;
-                currentIndex++;
-            }
-        }
-        // Replace the initial population with the next generation for further processing
-        population = nextGeneration;
+        return population;
     }
 
 }
