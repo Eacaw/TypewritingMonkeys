@@ -1,7 +1,6 @@
 package com.davidpinchen;
 
 import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.IOException;
 
 public class WriteFile {
@@ -21,13 +20,9 @@ public class WriteFile {
     public void writeToFile(String textLine) throws IOException{
 
         FileWriter write = new FileWriter(path, append_to_file);
-        PrintWriter print_Line = new PrintWriter(write);
 
         write.write(textLine + "\n");
         write.close();
-//
-//        print_Line.printf("%s\n", textLine);
-//        print_Line.close();
 
     }
 

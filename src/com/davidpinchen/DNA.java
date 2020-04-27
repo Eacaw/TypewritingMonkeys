@@ -11,7 +11,9 @@ public class DNA implements Comparable<DNA> {
     // the target phrase
     public char[] genes;
     double fitness = 0;
-    double targetFitness;
+
+
+    private double targetFitness;
     public int fitnessExponent;
     public char[] targetPhrase;
 
